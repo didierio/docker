@@ -7,5 +7,5 @@ It is used for docker deployment.
 
 ```
 fig build
-fig run -d
+fig up -d
 ```
