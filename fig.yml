@@ -1,0 +1,28 @@
+db:
+    environment:
+        POSTGRESQL_USER: 'didierio'
+        POSTGRESQL_PASS: 'didierio'
+        POSTGRESQL_DB: 'didierio'
+    image: orchardup/postgresql:9.3
+    ports:
+        - "5432:5432"
+
+nginx:
+    image: nginx
+    links:
+        - php:webstack_php
+    volumes:
+        - www:/var/www/www
+        - docker/nginx.conf:/nginx.conf
+    ports:
+        - 80:80
+    command: nginx -c /nginx.conf
+
+php:
+    image: jprjr/php-fpm
+    links:
+        - db
+    ports:
+        - 9000:9000
+    volumes:
+        - www:/srv/http
