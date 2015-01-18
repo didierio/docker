@@ -1,21 +1,30 @@
 db:
+    image: orchardup/postgresql:9.3
+    ports:
+        - 5432:5432
     environment:
         POSTGRESQL_USER: 'didierio'
         POSTGRESQL_PASS: 'didierio'
         POSTGRESQL_DB: 'didierio'
-    image: orchardup/postgresql:9.3
+
+elasticsearch:
+    image: dockerfile/elasticsearch
     ports:
-        - "5432:5432"
+        - 9200:9200
+        - 9300:9300
 
 php:
     build: ./docker/php
     links:
-        - db
+        - db:database
+        - elasticsearch:search_engine
     ports:
         - 9000:9000
     volumes:
         - www:/srv/http/www
         - website:/srv/http/website
+        - connect:/srv/http/connect
+        - docker/php/php-fpm.sh:/php-fpm
 
 www:
     image: nginx
@@ -23,7 +32,7 @@ www:
         - php:webstack_php
     volumes:
         - www:/var/www
-        - docker/nginx.conf:/nginx.conf
+        - docker/www/nginx.conf:/nginx.conf
     ports:
         - 80:80
     command: nginx -c /nginx.conf
@@ -36,5 +45,16 @@ website:
         - website:/var/www
         - docker/website/nginx.conf:/nginx.conf
     ports:
-        - 8080:8080
+        - 9001:9001
+    command: nginx -c /nginx.conf
+
+connect:
+    image: nginx
+    links:
+        - php:webstack_php
+    volumes:
+        - connect:/var/www
+        - docker/connect/nginx.conf:/nginx.conf
+    ports:
+        - 9002:9002
     command: nginx -c /nginx.conf
