@@ -24,6 +24,7 @@ php:
         - www:/srv/http/www
         - website:/srv/http/website
         - connect:/srv/http/connect
+        - media/back:/srv/http/media_back
         - docker/php/php-fpm.sh:/php-fpm
 
 www:
@@ -52,9 +53,21 @@ connect:
     image: nginx
     links:
         - php:webstack_php
+        - db:database
     volumes:
         - connect:/var/www
         - docker/connect/nginx.conf:/nginx.conf
     ports:
         - 9002:9002
+    command: nginx -c /nginx.conf
+
+mediaBack:
+    image: nginx
+    links:
+        - php:webstack_php
+    volumes:
+        - media/back:/var/www
+        - docker/media_back/nginx.conf:/nginx.conf
+    ports:
+        - 9003:9003
     command: nginx -c /nginx.conf
