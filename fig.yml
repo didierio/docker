@@ -50,7 +50,7 @@ website:
         - 9001:9001
     command: nginx -c /nginx.conf
     environment:
-        VIRTUAL_HOST: 'dev.didier.io'
+        VIRTUAL_HOST: 'www.dev.didier.io'
         VIRTUAL_PORT: 9001
 
 connect:
