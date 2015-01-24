@@ -35,7 +35,7 @@ www:
     image: jwilder/nginx-proxy:latest
     volumes:
         - /var/run/docker.sock:/tmp/docker.sock
-        - ./log:/var/log/nginx
+        - ./log/www:/var/log/nginx
     ports:
         - 80:80
 
@@ -46,8 +46,9 @@ website:
     volumes:
         - website:/var/www
         - docker/website/nginx.conf:/nginx.conf
+        - ./log/website:/var/log/nginx
     ports:
-        - 9001:80
+        - 9001:9001
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'www.dev.didier.io'
@@ -61,8 +62,9 @@ connect:
     volumes:
         - connect:/var/www
         - docker/connect/nginx.conf:/nginx.conf
+        - ./log/connect:/var/log/nginx
     ports:
-        - 9002:80
+        - 9002:9002
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'connect.dev.didier.io'
@@ -75,8 +77,9 @@ mediaBack:
     volumes:
         - media/back:/var/www
         - docker/media_back/nginx.conf:/nginx.conf
+        - ./log/media_back:/var/log/nginx
     ports:
-        - 9003:80
+        - 9003:9003
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'media.dev.didier.io'
