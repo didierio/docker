@@ -1,3 +1,20 @@
+consul:
+    command: -server -bootstrap -advertise 172.17.42.1
+    image: progrium/consul:latest
+    ports:
+        - "8300:8300"
+        - "8400:8400"
+        - "8500:8500"
+        - "8600:53/udp"
+
+registrator:
+    command: consul://consul:8500
+    image: progrium/registrator:latest
+    links:
+        - consul
+    volumes:
+        - "/var/run/docker.sock:/tmp/docker.sock"
+
 postgresql:
     image: orchardup/postgresql:9.3
     ports:
@@ -8,21 +25,25 @@ postgresql:
         POSTGRESQL_DB: 'didierio'
     volumes:
         - data/postgresql:/var/lib/postgresql
+    environment:
+        SERVICE_NAME: postgresql
 
 elasticsearch:
     image: dockerfile/elasticsearch
     volumes:
         - data/elasticsearch:/data
-
     ports:
         - 9200:9200
         - 9300:9300
+    environment:
+        SERVICE_NAME: elasticsearch
 
 php:
     build: ./docker/php
     links:
         - postgresql:database
         - elasticsearch:search_engine
+        - consul
     ports:
         - 9000:9000
     volumes:
@@ -30,6 +51,9 @@ php:
         - connect:/srv/http/connect
         - media/back:/srv/http/media_back
         - docker/php/php-fpm.sh:/php-fpm
+    environment:
+        SERVICE_NAME: php-fpm
+        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
 
 www:
     image: jwilder/nginx-proxy:latest
@@ -38,11 +62,17 @@ www:
         - ./log/www:/var/log/nginx
     ports:
         - 80:80
+    links:
+        - consul
+    environment:
+        SERVICE_NAME: nginx-proxy
+        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
 
 website:
     image: nginx:latest
     links:
         - php:webstack_php
+        - consul
     volumes:
         - website:/var/www
         - docker/website/nginx.conf:/nginx.conf
@@ -53,12 +83,14 @@ website:
     environment:
         VIRTUAL_HOST: 'www.dev.didier.io'
         VIRTUAL_PORT: 9001
+        SERVICE_NAME: website
 
 connect:
     image: nginx:latest
     links:
         - php:webstack_php
         - postgresql:database
+        - consul
     volumes:
         - connect:/var/www
         - docker/connect/nginx.conf:/nginx.conf
@@ -69,11 +101,14 @@ connect:
     environment:
         VIRTUAL_HOST: 'connect.dev.didier.io'
         VIRTUAL_PORT: 9002
+        SERVICE_NAME: connect
+        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
 
 mediaBack:
     image: nginx:latest
     links:
         - php:webstack_php
+        - consul
     volumes:
         - media/back:/var/www
         - docker/media_back/nginx.conf:/nginx.conf
@@ -84,3 +119,5 @@ mediaBack:
     environment:
         VIRTUAL_HOST: 'media.dev.didier.io'
         VIRTUAL_PORT: 9003
+        SERVICE_NAME: media_back
+        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
