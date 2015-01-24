@@ -1,0 +1,86 @@
+postgresql:
+    image: orchardup/postgresql:9.3
+    ports:
+        - 5432:5432
+    environment:
+        POSTGRESQL_USER: 'didierio'
+        POSTGRESQL_PASS: 'didierio'
+        POSTGRESQL_DB: 'didierio'
+    volumes:
+        - data/postgresql:/var/lib/postgresql
+
+elasticsearch:
+    image: dockerfile/elasticsearch
+    volumes:
+        - data/elasticsearch:/data
+
+    ports:
+        - 9200:9200
+        - 9300:9300
+
+php:
+    build: ./docker/php
+    links:
+        - postgresql:database
+        - elasticsearch:search_engine
+    ports:
+        - 9000:9000
+    volumes:
+        - website:/srv/http/website
+        - connect:/srv/http/connect
+        - media/back:/srv/http/media_back
+        - docker/php/php-fpm.sh:/php-fpm
+
+www:
+    image: jwilder/nginx-proxy:latest
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+        - ./log/www:/var/log/nginx
+    ports:
+        - 80:80
+
+website:
+    image: nginx:latest
+    links:
+        - php:webstack_php
+    volumes:
+        - website:/var/www
+        - docker/website/nginx.conf:/nginx.conf
+        - ./log/website:/var/log/nginx
+    ports:
+        - 9001:9001
+    command: nginx -c /nginx.conf
+    environment:
+        VIRTUAL_HOST: 'www.dev.didier.io'
+        VIRTUAL_PORT: 9001
+
+connect:
+    image: nginx:latest
+    links:
+        - php:webstack_php
+        - postgresql:database
+    volumes:
+        - connect:/var/www
+        - docker/connect/nginx.conf:/nginx.conf
+        - ./log/connect:/var/log/nginx
+    ports:
+        - 9002:9002
+    command: nginx -c /nginx.conf
+    environment:
+        VIRTUAL_HOST: 'connect.dev.didier.io'
+        VIRTUAL_PORT: 9002
+
+mediaBack:
+    image: nginx:latest
+    links:
+        - php:webstack_php
+    volumes:
+        - media/back:/var/www
+        - docker/media_back/nginx.conf:/nginx.conf
+        - ./log/media_back:/var/log/nginx
+    ports:
+        - 9003:9003
+    command: nginx -c /nginx.conf
+    environment:
+        VIRTUAL_HOST: 'media.dev.didier.io'
+        VIRTUAL_PORT: 9003
