@@ -32,7 +32,7 @@ php:
         - docker/php/php-fpm.sh:/php-fpm
 
 www:
-    image: jwilder/nginx-proxy
+    image: jwilder/nginx-proxy:latest
     volumes:
         - /var/run/docker.sock:/tmp/docker.sock
         - ./log:/var/log/nginx
@@ -40,7 +40,7 @@ www:
         - 80:80
 
 website:
-    image: nginx
+    image: nginx:latest
     links:
         - php:webstack_php
     volumes:
@@ -54,7 +54,7 @@ website:
         VIRTUAL_PORT: 9001
 
 connect:
-    image: nginx
+    image: nginx:latest
     links:
         - php:webstack_php
         - postgresql:database
@@ -69,7 +69,7 @@ connect:
         VIRTUAL_PORT: 9002
 
 mediaBack:
-    image: nginx
+    image: nginx:latest
     links:
         - php:webstack_php
     volumes:

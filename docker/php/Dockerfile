@@ -1,4 +1,4 @@
-FROM jprjr/php-fpm
+FROM jprjr/php-fpm:latest
 
 USER root
 
