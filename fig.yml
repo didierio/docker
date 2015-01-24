@@ -47,7 +47,7 @@ website:
         - website:/var/www
         - docker/website/nginx.conf:/nginx.conf
     ports:
-        - 9001:9001
+        - 9001:80
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'www.dev.didier.io'
@@ -62,7 +62,7 @@ connect:
         - connect:/var/www
         - docker/connect/nginx.conf:/nginx.conf
     ports:
-        - 9002:9002
+        - 9002:80
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'connect.dev.didier.io'
@@ -76,7 +76,7 @@ mediaBack:
         - media/back:/var/www
         - docker/media_back/nginx.conf:/nginx.conf
     ports:
-        - 9003:9003
+        - 9003:80
     command: nginx -c /nginx.conf
     environment:
         VIRTUAL_HOST: 'media.dev.didier.io'
