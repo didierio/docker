@@ -13,10 +13,22 @@ elasticsearch:
     image: dockerfile/elasticsearch
     volumes:
         - data/elasticsearch:/data
-
     ports:
         - 9200:9200
         - 9300:9300
+
+node:
+    image: node:latest
+    links:
+        - mongoDb:database
+    volumes:
+        - media/node:/node
+    ports:
+        - 9004:9004
+    command: node /node/oauth-server.js
+
+mongoDb:
+    image: mongo:latest
 
 php:
     build: ./docker/php
@@ -28,8 +40,7 @@ php:
     volumes:
         - website:/srv/http/website
         - connect:/srv/http/connect
-        - media/back:/srv/http/media_back
-        - docker/php/php-fpm.sh:/php-fpm
+        - media/back:/srv/http/media/back
 
 www:
     image: jwilder/nginx-proxy:latest
@@ -70,14 +81,15 @@ connect:
         VIRTUAL_HOST: 'connect.dev.didier.io'
         VIRTUAL_PORT: 9002
 
-mediaBack:
-    image: nginx:latest
+media:
+    build: ./docker/media
     links:
         - php:webstack_php
+        - node:webstack_node
     volumes:
-        - media/back:/var/www
-        - docker/media_back/nginx.conf:/nginx.conf
-        - ./log/media_back:/var/log/nginx
+        - media:/var/www
+        - docker/media/nginx.conf:/nginx.conf
+        - ./log/media:/var/log/nginx
     ports:
         - 9003:9003
     command: nginx -c /nginx.conf
