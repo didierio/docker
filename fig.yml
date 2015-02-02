@@ -48,6 +48,8 @@ php:
         - 9000:9000
     volumes:
         - website:/srv/http/website
+        - blog:/srv/http/blog
+        - work:/srv/http/work
         - connect:/srv/http/connect
         - media/back:/srv/http/media_back
         - docker/php/php-fpm.sh:/php-fpm
