@@ -20,14 +20,14 @@ elasticsearch:
 node:
     image: node:latest
     links:
-        - mongoDb:database
+        - mongodb:database
     volumes:
         - media/node:/node
     ports:
         - 9004:9004
     command: node /node/oauth-server.js
 
-mongoDb:
+mongodb:
     image: mongo:latest
 
 php:
