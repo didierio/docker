@@ -1,13 +1,11 @@
 consul:
-    command: -server -bootstrap -advertise 172.17.42.1
+    command: -server -bootstrap -advertise $DOCKER_PRIVATE_IP
     image: progrium/consul:latest
     ports:
         - "8300:8300"
         - "8400:8400"
         - "8500:8500"
         - "8600:53/udp"
-    environment:
-        PRIVATE_IP: DOCKER_PRIVATE_IP
 
 registrator:
     command: consul://consul:8500
@@ -16,6 +14,8 @@ registrator:
         - consul
     volumes:
         - "/var/run/docker.sock:/tmp/docker.sock"
+    environment:
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 postgresql:
     image: orchardup/postgresql:9.3
@@ -29,6 +29,7 @@ postgresql:
         - data/postgresql:/var/lib/postgresql
     environment:
         SERVICE_NAME: postgresql
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 elasticsearch:
     image: dockerfile/elasticsearch
@@ -39,6 +40,7 @@ elasticsearch:
         - 9300:9300
     environment:
         SERVICE_NAME: elasticsearch
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 php:
     build: ./docker/php
@@ -57,6 +59,7 @@ php:
         - docker/php/php-fpm.sh:/php-fpm
     environment:
         SERVICE_NAME: php-fpm
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 www:
     image: jwilder/nginx-proxy:latest
@@ -69,7 +72,7 @@ www:
         - consul
     environment:
         SERVICE_NAME: nginx-proxy
-        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 website:
     image: nginx:latest
@@ -87,6 +90,7 @@ website:
         VIRTUAL_HOST: 'www.dev.didier.io'
         VIRTUAL_PORT: 9001
         SERVICE_NAME: website
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 connect:
     image: nginx:latest
@@ -105,7 +109,7 @@ connect:
         VIRTUAL_HOST: 'connect.dev.didier.io'
         VIRTUAL_PORT: 9002
         SERVICE_NAME: connect
-        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
 
 mediaBack:
     image: nginx:latest
@@ -123,4 +127,4 @@ mediaBack:
         VIRTUAL_HOST: 'media.dev.didier.io'
         VIRTUAL_PORT: 9003
         SERVICE_NAME: media_back
-        DOCKER_OPTS: --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
+        DOCKER_OPTS: --dns $DOCKER_PRIVATE_IP --dns 8.8.8.8 --dns-search service.consul
