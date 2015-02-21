@@ -30,7 +30,7 @@ php:
         - blog:/srv/http/blog
         - work:/srv/http/work
         - connect:/srv/http/connect
-        - media/back:/srv/http/media_back
+        - cache/back:/srv/http/cache_back
         - docker/php/php-fpm.sh:/php-fpm
 
 www:
@@ -72,17 +72,17 @@ connect:
         VIRTUAL_HOST: 'connect.dev.didier.io'
         VIRTUAL_PORT: 9002
 
-mediaBack:
+cacheBack:
     image: nginx:latest
     links:
         - php:webstack_php
     volumes:
-        - media/back:/var/www
-        - docker/media_back/nginx.conf:/nginx.conf
-        - ./log/media_back:/var/log/nginx
+        - cache/back:/var/www
+        - docker/cache_back/nginx.conf:/nginx.conf
+        - ./log/cache_back:/var/log/nginx
     ports:
         - 9003:9003
     command: nginx -c /nginx.conf
     environment:
-        VIRTUAL_HOST: 'media.dev.didier.io'
+        VIRTUAL_HOST: 'cache.dev.didier.io'
         VIRTUAL_PORT: 9003
