@@ -7,11 +7,11 @@ It is used for docker deployment.
 
 * ``node``
 * ``docker``
-* ``fig``
+* ``docker-compose``
 
 ## Installation
 
 ```
-fig build
-fig up -d
+docker-compose build
+docker-compose up -d
 ```
