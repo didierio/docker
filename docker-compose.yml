@@ -1,3 +1,10 @@
+redis:
+    build: ./docker/redis
+    ports:
+        - 6379:6379
+    volumes:
+        - data/redis:/data
+
 postgresql:
     image: orchardup/postgresql:9.3
     ports:
@@ -23,6 +30,7 @@ php:
     links:
         - postgresql:database
         - elasticsearch:search_engine
+        - redis:redis
     ports:
         - 9000:9000
     volumes:
