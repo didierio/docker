@@ -15,3 +15,10 @@ It is used for docker deployment.
 docker-compose build
 docker-compose up -d
 ```
+
+## Tips
+
+```
+docker rm $(docker ps -aq) # remove all containers
+docker rmi $(docker images -q) # remove all images
+```

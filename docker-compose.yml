@@ -10,7 +10,7 @@ postgresql:
         - data/postgresql:/var/lib/postgresql
 
 elasticsearch:
-    image: dockerfile/elasticsearch
+    image: elasticsearch:1.5
     volumes:
         - data/elasticsearch:/data
 
@@ -31,7 +31,6 @@ php:
         - work:/srv/http/work
         - connect:/srv/http/connect
         - cache/back:/srv/http/cache_back
-        - docker/php/php-fpm.sh:/php-fpm
 
 www:
     image: jwilder/nginx-proxy:latest
