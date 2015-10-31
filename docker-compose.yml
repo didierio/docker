@@ -10,22 +10,22 @@ php:
     build: "./docker/php"
     links:
         - "db_website:db_website"
-        - "db_cache_back:db_cache_back"
+        - "db_cache:db_cache"
         - "elasticsearch:search_engine"
     ports:
         - "9000:9000"
     volumes:
-        - "./website:/srv/http/website"
-        - "./blog:/srv/http/blog"
-        - "./work:/srv/http/work"
-        - "./connect:/srv/http/connect"
-        - "./cache/back:/srv/http/cache_back"
+        - "./apps/website:/srv/http/website"
+        - "./apps/blog:/srv/http/blog"
+        - "./apps/work:/srv/http/work"
+        - "./apps/connect:/srv/http/connect"
+        - "./apps/cache/back:/srv/http/cache"
 
-www:
+web:
     image: "jwilder/nginx-proxy:latest"
     volumes:
         - "/var/run/docker.sock:/tmp/docker.sock"
-        - "./log/www:/var/log/nginx"
+        - "./logs/web:/var/log/nginx"
     ports:
         - "80:80"
 
@@ -40,14 +40,14 @@ db_website:
     volumes:
         - "./data/postgresql:/var/lib/postgresql"
 
-http_website:
+web_website:
     image: "nginx:latest"
     links:
         - "php:webstack_php"
     volumes:
-        - "./website:/var/www"
-        - "./docker/website/nginx.conf:/nginx.conf"
-        - "./log/website:/var/log/nginx"
+        - "./apps/website:/var/www"
+        - "./docker/web_website/nginx.conf:/nginx.conf"
+        - "./logs/website:/var/log/nginx"
     ports:
         - "9001:9001"
     command: "nginx -c /nginx.conf"
@@ -55,15 +55,15 @@ http_website:
         VIRTUAL_HOST: "www.dev.didier.io"
         VIRTUAL_PORT: "9001"
 
-http_connect:
+web_connect:
     image: "nginx:latest"
     links:
         - "php:webstack_php"
         - "db_website:db_website"
     volumes:
-        - "./connect:/var/www"
-        - "./docker/connect/nginx.conf:/nginx.conf"
-        - "./log/connect:/var/log/nginx"
+        - "./apps/connect:/var/www"
+        - "./docker/web_connect/nginx.conf:/nginx.conf"
+        - "./logs/connect:/var/log/nginx"
     ports:
         - "9002:9002"
     command: "nginx -c /nginx.conf"
@@ -71,8 +71,8 @@ http_connect:
         VIRTUAL_HOST: 'connect.dev.didier.io'
         VIRTUAL_PORT: "9002"
 
-db_cache_back:
-    build: "./docker/db_cache_back"
+db_cache:
+    build: "./docker/db_cache"
     ports:
         - "10001:10001"
     environment:
@@ -82,15 +82,15 @@ db_cache_back:
     volumes:
         - "./data/postgresql:/var/lib/postgresql"
 
-http_cache_back:
+web_cache:
     image: "nginx:latest"
     links:
         - "php:webstack_php"
-        - "db_cache_back:db_cache_back"
+        - "db_cache:db_cache"
     volumes:
-        - "./cache/back:/var/www"
-        - "./docker/cache_back/nginx.conf:/nginx.conf"
-        - "./log/cache_back:/var/log/nginx"
+        - "./apps/cache:/var/www"
+        - "./docker/web_cache/nginx.conf:/nginx.conf"
+        - "./logs/cache:/var/log/nginx"
     ports:
         - "9003:9003"
     command: "nginx -c /nginx.conf"

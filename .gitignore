@@ -1,7 +1,3 @@
-/blog
-/connect
+/apps/*
 /data
-/log
-/cache
-/website
-/work
+/logs
