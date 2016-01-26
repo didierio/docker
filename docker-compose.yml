@@ -11,6 +11,7 @@ php:
     links:
         - "db_website:db_website"
         - "db_cache:db_cache"
+        - "db_connect:db_connect"
         - "elasticsearch:search_engine"
     ports:
         - "9000:9000"
@@ -38,7 +39,7 @@ db_website:
         POSTGRESQL_PASS: "didierio"
         POSTGRESQL_DB: "didierio"
     volumes:
-        - "./data/postgresql:/var/lib/postgresql"
+        - "./data/db_website/postgresql:/var/lib/postgresql"
 
 web_website:
     image: "nginx:latest"
@@ -59,7 +60,7 @@ web_connect:
     image: "nginx:latest"
     links:
         - "php:webstack_php"
-        - "db_website:db_website"
+        - "db_connect:db_connect"
     volumes:
         - "./apps/connect:/var/www"
         - "./docker/web_connect/nginx.conf:/nginx.conf"
@@ -80,7 +81,19 @@ db_cache:
         POSTGRESQL_PASS: "didierio_cache"
         POSTGRESQL_DB: "didierio_cache"
     volumes:
-        - "./data/postgresql:/var/lib/postgresql"
+        - "./data/db_cache/postgresql:/var/lib/postgresql"
+
+db_connect:
+    build: "./docker/db_connect"
+    ports:
+        - "10002:10002"
+    environment:
+        POSTGRESQL_USER: "didierio_connect"
+        POSTGRESQL_PASS: "didierio_connect"
+        POSTGRESQL_DB: "didierio_connect"
+    volumes:
+        - "./data/db_connect/postgresql:/var/lib/postgresql"
+
 
 web_cache:
     image: "nginx:latest"
