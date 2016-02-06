@@ -20,13 +20,13 @@ php:
         - "./apps/blog:/srv/http/blog"
         - "./apps/work:/srv/http/work"
         - "./apps/connect:/srv/http/connect"
-        - "./apps/cache/back:/srv/http/cache"
+        - "./apps/cache:/srv/http/cache"
 
 web:
     image: "jwilder/nginx-proxy:latest"
     volumes:
         - "/var/run/docker.sock:/tmp/docker.sock"
-        - "./logs/web:/var/log/nginx"
+        - "./log/web:/var/log/nginx"
     ports:
         - "80:80"
 
@@ -48,7 +48,7 @@ web_website:
     volumes:
         - "./apps/website:/var/www"
         - "./docker/web_website/nginx.conf:/nginx.conf"
-        - "./logs/website:/var/log/nginx"
+        - "./log/website:/var/log/nginx"
     ports:
         - "9001:9001"
     command: "nginx -c /nginx.conf"
@@ -64,7 +64,7 @@ web_connect:
     volumes:
         - "./apps/connect:/var/www"
         - "./docker/web_connect/nginx.conf:/nginx.conf"
-        - "./logs/connect:/var/log/nginx"
+        - "./log/connect:/var/log/nginx"
     ports:
         - "9002:9002"
     command: "nginx -c /nginx.conf"
@@ -103,7 +103,7 @@ web_cache:
     volumes:
         - "./apps/cache:/var/www"
         - "./docker/web_cache/nginx.conf:/nginx.conf"
-        - "./logs/cache:/var/log/nginx"
+        - "./log/cache/nginx:/var/log/nginx"
     ports:
         - "9003:9003"
     command: "nginx -c /nginx.conf"
