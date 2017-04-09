@@ -8,6 +8,7 @@ elasticsearch:
 
 php:
     build: "./docker/php"
+    image: "php:7.1-fpm"
     links:
         - "db_website:db_website"
         - "db_cache:db_cache"
@@ -21,6 +22,8 @@ php:
         - "./apps/work:/srv/http/work"
         - "./apps/connect:/srv/http/connect"
         - "./apps/cache:/srv/http/cache"
+   environment:
+        - "PHP_EXTRA_CONFIGURE_ARGS=--enable-fpm --with-fpm-user=1000 --with-fpm-group=1000 --enable-zip"
 
 web:
     image: "jwilder/nginx-proxy:latest"
