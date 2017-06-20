@@ -1,115 +1,118 @@
-elasticsearch:
+version: "2"
+
+services:
+
+  elasticsearch:
     image: "elasticsearch:1.5"
     volumes:
-        - "./data/elasticsearch:/data"
+      - "./data/elasticsearch:/data"
     ports:
-        - "9200:9200"
-        - "9300:9300"
+      - "9200:9200"
+      - "9300:9300"
 
-php:
+  php:
     build: "./docker/php"
     image: "php:7.1-fpm"
     links:
-        - "db_website:db_website"
-        - "db_cache:db_cache"
-        - "db_connect:db_connect"
-        - "elasticsearch:search_engine"
+      - "db_website:db_website"
+      - "db_cache:db_cache"
+      - "db_connect:db_connect"
+      - "elasticsearch:search_engine"
     ports:
-        - "9000:9000"
+      - "9000:9000"
     volumes:
-        - "./apps/website:/srv/http/website"
-        - "./apps/blog:/srv/http/blog"
-        - "./apps/work:/srv/http/work"
-        - "./apps/connect:/srv/http/connect"
-        - "./apps/cache:/srv/http/cache"
-   environment:
-        - "PHP_EXTRA_CONFIGURE_ARGS=--enable-fpm --with-fpm-user=1000 --with-fpm-group=1000 --enable-zip"
+      - "./apps/website:/srv/http/website"
+      - "./apps/blog:/srv/http/blog"
+      - "./apps/work:/srv/http/work"
+      - "./apps/connect:/srv/http/connect"
+      - "./apps/cache:/srv/http/cache"
+    environment:
+      - "PHP_EXTRA_CONFIGURE_ARGS=--enable-fpm --with-fpm-user=1000 --with-fpm-group=1000 --enable-zip"
 
-web:
+  web:
     image: "jwilder/nginx-proxy:latest"
     volumes:
-        - "/var/run/docker.sock:/tmp/docker.sock"
-        - "./log/web:/var/log/nginx"
+      - "/var/run/docker.sock:/tmp/docker.sock"
+      - "./log/web:/var/log/nginx"
     ports:
-        - "80:80"
+      - "80:80"
 
-db_website:
+  db_website:
     image: "orchardup/postgresql:9.3"
     ports:
-        - "5432:5432"
+      - "5432:5432"
     environment:
-        POSTGRESQL_USER: "didierio"
-        POSTGRESQL_PASS: "didierio"
-        POSTGRESQL_DB: "didierio"
+      POSTGRESQL_USER: "didierio"
+      POSTGRESQL_PASS: "didierio"
+      POSTGRESQL_DB: "didierio"
     volumes:
-        - "./data/db_website/postgresql:/var/lib/postgresql"
+      - "./data/db_website/postgresql:/var/lib/postgresql"
 
-web_website:
+  web_website:
     image: "nginx:latest"
     links:
-        - "php:webstack_php"
+      - "php:webstack_php"
     volumes:
-        - "./apps/website:/var/www"
-        - "./docker/web_website/nginx.conf:/nginx.conf"
-        - "./log/website:/var/log/nginx"
+      - "./apps/website:/var/www"
+      - "./docker/web_website/nginx.conf:/nginx.conf"
+      - "./log/website:/var/log/nginx"
     ports:
-        - "9001:9001"
+      - "9001:9001"
     command: "nginx -c /nginx.conf"
     environment:
-        VIRTUAL_HOST: "www.dev.didier.io"
-        VIRTUAL_PORT: "9001"
+      VIRTUAL_HOST: "www.dev.didier.io"
+      VIRTUAL_PORT: "9001"
 
-web_connect:
+  web_connect:
     image: "nginx:latest"
     links:
-        - "php:webstack_php"
-        - "db_connect:db_connect"
+      - "php:webstack_php"
+      - "db_connect:db_connect"
     volumes:
-        - "./apps/connect:/var/www"
-        - "./docker/web_connect/nginx.conf:/nginx.conf"
-        - "./log/connect:/var/log/nginx"
+      - "./apps/connect:/var/www"
+      - "./docker/web_connect/nginx.conf:/nginx.conf"
+      - "./log/connect:/var/log/nginx"
     ports:
-        - "9002:9002"
+      - "9002:9002"
     command: "nginx -c /nginx.conf"
     environment:
-        VIRTUAL_HOST: 'connect.dev.didier.io'
-        VIRTUAL_PORT: "9002"
+      VIRTUAL_HOST: 'connect.dev.didier.io'
+      VIRTUAL_PORT: "9002"
 
-db_cache:
+  db_cache:
     build: "./docker/db_cache"
     ports:
-        - "10001:10001"
+      - "10001:10001"
     environment:
-        POSTGRESQL_USER: "didierio_cache"
-        POSTGRESQL_PASS: "didierio_cache"
-        POSTGRESQL_DB: "didierio_cache"
+      POSTGRESQL_USER: "didierio_cache"
+      POSTGRESQL_PASS: "didierio_cache"
+      POSTGRESQL_DB: "didierio_cache"
     volumes:
-        - "./data/db_cache/postgresql:/var/lib/postgresql"
+      - "./data/db_cache/postgresql:/var/lib/postgresql"
 
-db_connect:
+  db_connect:
     build: "./docker/db_connect"
     ports:
-        - "10002:10002"
+      - "10002:10002"
     environment:
-        POSTGRESQL_USER: "didierio_connect"
-        POSTGRESQL_PASS: "didierio_connect"
-        POSTGRESQL_DB: "didierio_connect"
+      POSTGRESQL_USER: "didierio_connect"
+      POSTGRESQL_PASS: "didierio_connect"
+      POSTGRESQL_DB: "didierio_connect"
     volumes:
-        - "./data/db_connect/postgresql:/var/lib/postgresql"
+      - "./data/db_connect/postgresql:/var/lib/postgresql"
 
-
-web_cache:
+  web_cache:
     image: "nginx:latest"
     links:
-        - "php:webstack_php"
-        - "db_cache:db_cache"
+      - "php:webstack_php"
+      - "db_cache:db_cache"
     volumes:
-        - "./apps/cache:/var/www"
-        - "./docker/web_cache/nginx.conf:/nginx.conf"
-        - "./log/cache/nginx:/var/log/nginx"
+      - "./apps/cache:/var/www"
+      - "./docker/web_cache/nginx.conf:/nginx.conf"
+      - "./log/cache/nginx:/var/log/nginx"
     ports:
-        - "9003:9003"
+      - "9003:9003"
     command: "nginx -c /nginx.conf"
     environment:
-        VIRTUAL_HOST: "cache.dev.didier.io"
-        VIRTUAL_PORT: "9003"
+      VIRTUAL_HOST: "cache.dev.didier.io"
+      VIRTUAL_PORT: "9003"
