@@ -14,4 +14,8 @@ USER root
 
 # ENV PHP_EXTRA_CONFIGURE_ARGS "--enable-zip"
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git \
+        unzip \
+        libpq-dev
+
+RUN docker-php-ext-install pdo pdo_pgsql
